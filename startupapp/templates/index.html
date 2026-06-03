@@ -1,0 +1,999 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nivin Padaveettil | Full-Stack 3D Developer Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #030712;
+        }
+
+        .font-mono {
+            font-family: 'Space Mono', monospace;
+        }
+
+        #canvas-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        .ui-layer {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Scroll Progress Bar */
+        #scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #10b981, #14b8a6);
+            z-index: 100;
+            width: 0%;
+            transition: width 0.1s ease-out;
+        }
+
+        /* Preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #030712;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Space Mono', monospace;
+        }
+
+        /* Premium Glassmorphism */
+        .glass {
+            background: rgba(17, 24, 39, 0.65);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .glass-emerald {
+            background: rgba(16, 185, 129, 0.03);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Hover effects */
+        .hover-transform {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-transform:hover {
+            transform: translateY(-8px);
+            border-color: rgba(16, 185, 129, 0.3);
+            box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.15);
+        }
+
+        /* Active Navbar Links */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #10b981;
+            transition: width 0.3s ease;
+        }
+        .nav-link.active {
+            color: #10b981;
+        }
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        /* Skill bars */
+        .skill-progress {
+            width: 0%;
+            transition: width 1.5s cubic-bezier(0.1, 1, 0.1, 1);
+        }
+
+        /* Hamburger Animation */
+        #mobile-menu-btn span {
+            transition: all 0.3s ease-in-out;
+        }
+        #mobile-menu-btn.open span:nth-child(1) {
+            transform: translateY(8px) rotate(45deg);
+        }
+        #mobile-menu-btn.open span:nth-child(2) {
+            opacity: 0;
+        }
+        #mobile-menu-btn.open span:nth-child(3) {
+            transform: translateY(-8px) rotate(-45deg);
+        }
+    </style>
+</head>
+
+<body class="text-slate-100 overflow-x-hidden">
+
+    <!-- Scroll Progress Indicator -->
+    <div id="scroll-progress"></div>
+
+    <!-- Cybersecurity Preloader -->
+    <div id="preloader">
+        <div class="flex flex-col items-center">
+            <div class="relative w-24 h-24 mb-6">
+                <div class="absolute inset-0 border-4 border-emerald-500/20 rounded-full"></div>
+                <div class="absolute inset-0 border-4 border-t-emerald-400 rounded-full animate-spin"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-emerald-400 text-3xl font-mono animate-pulse">
+                    &lt;/&gt;
+                </div>
+            </div>
+            <div class="text-emerald-400 text-sm tracking-widest font-mono uppercase mb-3 h-6" id="preloader-text">
+                INITIALIZING SYSTEM...
+            </div>
+            <div class="w-48 bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-800/50">
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full w-0 transition-all duration-300" id="preloader-bar"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="canvas-bg"></div>
+
+    <div class="ui-layer">
+
+        <nav class="sticky top-0 w-full glass border-b border-slate-800/50 backdrop-blur-md z-50">
+            <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+                <a href="/"
+                    class="text-xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
+                    NIVIN<span class="text-slate-100"> PADAVEETTIL</span>
+                </a>
+                <div
+                    class="hidden lg:flex items-center gap-6 text-xs uppercase font-mono tracking-wider text-slate-400">
+                    <a href="#projects" class="nav-link hover:text-emerald-400 transition-colors">Projects</a>
+                    <a href="#skills" class="nav-link hover:text-emerald-400 transition-colors">Skills</a>
+                    <a href="#about" class="nav-link hover:text-emerald-400 transition-colors">About</a>
+                    <a href="#resume" class="nav-link hover:text-emerald-400 transition-colors">Certifications</a>
+                    <a href="#achievements" class="nav-link hover:text-emerald-400 transition-colors">Achievements</a>
+                    <a href="#blog" class="nav-link hover:text-emerald-400 transition-colors">Articles</a>
+                    <a href="#contact"
+                        class="px-4 py-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-md hover:bg-emerald-500 hover:text-slate-950 transition-all">Contact</a>
+                </div>
+                <!-- Hamburger Button -->
+                <button id="mobile-menu-btn" class="lg:hidden flex flex-col justify-between w-6 h-4.5 focus:outline-none z-50" aria-label="Toggle menu">
+                    <span class="w-full h-0.5 bg-slate-300 rounded-sm"></span>
+                    <span class="w-full h-0.5 bg-slate-300 rounded-sm"></span>
+                    <span class="w-full h-0.5 bg-slate-300 rounded-sm"></span>
+                </button>
+            </div>
+            <!-- Mobile Menu -->
+            <div id="mobile-menu" class="fixed top-[65px] left-0 w-full h-[calc(100vh-65px)] bg-slate-950/95 backdrop-blur-lg border-t border-slate-800/50 flex flex-col items-center justify-center gap-6 text-sm uppercase font-mono tracking-wider text-slate-400 transition-all duration-300 translate-x-full z-40">
+                <a href="#projects" class="mobile-nav-link hover:text-emerald-400 transition-colors">Projects</a>
+                <a href="#skills" class="mobile-nav-link hover:text-emerald-400 transition-colors">Skills</a>
+                <a href="#about" class="mobile-nav-link hover:text-emerald-400 transition-colors">About</a>
+                <a href="#resume" class="mobile-nav-link hover:text-emerald-400 transition-colors">Certifications</a>
+                <a href="#achievements" class="mobile-nav-link hover:text-emerald-400 transition-colors">Achievements</a>
+                <a href="#blog" class="mobile-nav-link hover:text-emerald-400 transition-colors">Articles</a>
+                <a href="#contact"
+                    class="px-6 py-3 bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded-md hover:bg-emerald-500 hover:text-slate-950 transition-all">Contact</a>
+            </div>
+        </nav>
+
+        <header class="max-w-5xl mx-auto px-6 pt-16 pb-20 min-h-[85vh] flex flex-col items-center justify-center gap-12">
+            <div class="w-full glass-emerald p-8 md:p-16 rounded-3xl shadow-2xl relative overflow-hidden text-center flex flex-col items-center" data-aos="fade-up">
+                <div class="absolute -right-10 -top-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-3xl"></div>
+                <!-- Profile Image -->
+                <div class="relative mb-8" data-aos="zoom-in" data-aos-delay="100">
+                    <div
+                        class="absolute inset-0 rounded-full bg-emerald-500 blur-2xl opacity-30 scale-110">
+                    </div>
+
+                    <img
+                        src="{% static 'images/nivin.png' %}"
+                        alt="Nivin Padaveettil"
+                        class="relative w-44 h-44 md:w-56 md:h-56 object-cover rounded-full border-4 border-emerald-500 shadow-2xl shadow-emerald-500/30 hover:scale-105 transition duration-300">
+
+                    <div
+                        class="absolute bottom-2 right-2 w-5 h-5 bg-emerald-400 rounded-full border-2 border-slate-900 animate-pulse">
+                    </div>
+                </div>
+                <div class="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 text-emerald-400 text-xs font-mono rounded-full mb-6 border border-emerald-500/20" data-aos="fade-down" data-aos-delay="200">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    PORTFOLIO SECURE & ONLINE
+                </div>
+                <h1
+                    class="text-5xl md:text-7xl font-extrabold tracking-tight mb-4" data-aos="fade-up" data-aos-delay="300">
+                    NIVIN
+                    <span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
+                        PADAVEETTIL
+                    </span>
+                </h1>
+
+                <h2
+                    class="text-xl md:text-2xl text-slate-300 font-semibold mb-6" data-aos="fade-up" data-aos-delay="350">
+                    Cybersecurity Student • Ethical Hacker • Security Researcher
+                </h2>
+                <p class="text-slate-400 text-lg mb-8 leading-relaxed font-light max-w-2xl" data-aos="fade-up" data-aos-delay="400">
+                    Cybersecurity Student | Ethical Hacker | Penetration Tester | Security Researcher. Passionate about vulnerability discovery, security research, and building defensive systems.
+                </p>
+
+                <!-- Stats Row with Counters -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 w-full max-w-2xl mb-8 border-y border-emerald-500/10 py-6" data-aos="fade-up" data-aos-delay="450">
+                    <div class="text-center">
+                        <div class="text-2xl md:text-3xl font-extrabold text-emerald-400 font-mono"><span class="counter" data-target="15">0</span>+</div>
+                        <div class="text-xs text-slate-400 uppercase font-mono mt-1 tracking-wider">Projects</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl md:text-3xl font-extrabold text-emerald-400 font-mono"><span class="counter" data-target="120">0</span>+</div>
+                        <div class="text-xs text-slate-400 uppercase font-mono mt-1 tracking-wider">CTF Labs</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl md:text-3xl font-extrabold text-emerald-400 font-mono"><span class="counter" data-target="25">0</span>+</div>
+                        <div class="text-xs text-slate-400 uppercase font-mono mt-1 tracking-wider">Bugs Found</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-2xl md:text-3xl font-extrabold text-emerald-400 font-mono">Top <span class="counter" data-target="3">0</span>%</div>
+                        <div class="text-xs text-slate-400 uppercase font-mono mt-1 tracking-wider">THM Rank</div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap gap-4 justify-center" data-aos="fade-up" data-aos-delay="500">
+                    <a href="#projects" class="px-6 py-3 bg-emerald-500 text-slate-950 font-bold rounded-xl hover:bg-emerald-400 transition-all shadow-lg shadow-emerald-500/20">View Projects</a>
+                    <a href="{% static 'resume/Nivin_Padaveettil_Resume.pdf' %}" class="px-6 py-3 bg-slate-800 text-slate-100 font-semibold rounded-xl hover:bg-slate-700 transition-all border border-slate-700">Download Resume</a>
+                    <a href="#contact" class="px-6 py-3 glass hover:bg-slate-800/80 font-semibold rounded-xl transition-all">Contact Me</a>
+                </div>
+            </div>
+        </header>
+
+        <section id="projects" class="max-w-7xl mx-auto px-6 py-20">
+            <div class="mb-12" data-aos="fade-up">
+                <p class="text-emerald-400 font-mono text-xs uppercase tracking-widest mb-2">// SECURITY ARSENAL</p>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">Featured Projects</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="glass rounded-2xl overflow-hidden group hover-transform" data-aos="fade-up" data-aos-delay="100">
+                    <div class="h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
+                        <img src="{% static 'images/ai_malware.png' %}" alt="AI Malware Detection & Chatbot" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-xs font-mono text-emerald-400">Python / Flask / LightGBM / AI-ML</span>
+                        <h3 class="text-xl font-bold mt-1 mb-2 group-hover:text-emerald-400 transition-colors">AI Malware Detection & Chatbot</h3>
+                        <p class="text-slate-400 text-sm">Full-stack security application with AI-powered file malware detection, URL phishing detection, and cybersecurity Q&A chatbot. Features LightGBM ML models trained on Kaggle datasets with 90%+ accuracy.</p>
+                        <a href="https://github.com/NivinPadaveettil/ai_malware_detection_chatbot" target="_blank" class="text-emerald-400 text-xs font-mono mt-3 inline-block hover:text-emerald-300">→ View on GitHub</a>
+                    </div>
+                </div>
+                <div class="glass rounded-2xl overflow-hidden group hover-transform" data-aos="fade-up" data-aos-delay="200">
+                    <div class="h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
+                        <img src="{% static 'images/packet_analyzer.png' %}" alt="Advanced Packet Analyzer" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-xs font-mono text-emerald-400">Java / pcap4j / Network Analysis</span>
+                        <h3 class="text-xl font-bold mt-1 mb-2 group-hover:text-emerald-400 transition-colors">Advanced Packet Analyzer</h3>
+                        <p class="text-slate-400 text-sm">Comprehensive Java-based network packet analyzer with real-time packet capture, protocol dissection (Ethernet, IP, TCP, UDP), GUI dashboard, IP geolocation, threat detection, and PCAP file analysis.</p>
+                        <a href="https://github.com/NivinPadaveettil/Packet-Sniffer" target="_blank" class="text-emerald-400 text-xs font-mono mt-3 inline-block hover:text-emerald-300">→ View on GitHub</a>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-8">
+                <div class="glass rounded-2xl overflow-hidden group hover-transform" data-aos="fade-up" data-aos-delay="300">
+                    <div class="h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
+                        <img src="{% static 'images/chat_platform.png' %}" alt="Inderbara Chat Platform" class="w-full h-full object-cover">
+                        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-xs font-mono text-emerald-400">Django / WebSockets / Channels / Redis</span>
+                        <h3 class="text-xl font-bold mt-1 mb-2 group-hover:text-emerald-400 transition-colors">Inderbara Chat Platform</h3>
+                        <p class="text-slate-400 text-sm">Production-ready real-time messaging platform built with Django 5 & WebSocket Channels 4. Features end-to-end encryption (RSA-OAEP + AES-GCM), file sharing (100MB), image uploads, typing indicators, and beautiful dark theme UI.</p>
+                        <a href="https://github.com/NivinPadaveettil/chat-app" target="_blank" class="text-emerald-400 text-xs font-mono mt-3 inline-block hover:text-emerald-300">→ View on GitHub</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="skills" class="max-w-7xl mx-auto px-6 py-20">
+            <div class="mb-12" data-aos="fade-up">
+                <p class="text-emerald-400 font-mono text-xs uppercase tracking-widest mb-2">// OFFENSIVE & DEFENSIVE ARSENAL</p>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">Skills & Tools</h2>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="glass p-4 rounded-xl text-center hover-transform group" data-aos="zoom-in" data-aos-delay="0">
+                    <div class="aspect-square bg-slate-900/80 rounded-lg mb-3 flex items-center justify-center text-xs text-slate-600 font-bold relative overflow-hidden group-hover:bg-slate-900 transition-colors">
+                        <img src="{% static 'images/nmap_icon.png' %}" alt="Nmap" class="w-12 h-12 object-contain transition-all group-hover:scale-110 duration-300">
+                    </div>
+                    <h4 class="font-bold text-sm">Nmap</h4>
+                    <p class="text-xs text-slate-500 mt-1">Network Scanning</p>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover-transform group" data-aos="zoom-in" data-aos-delay="50">
+                    <div class="aspect-square bg-slate-900/80 rounded-lg mb-3 flex items-center justify-center text-xs text-slate-600 font-bold relative overflow-hidden group-hover:bg-slate-900 transition-colors">
+                        <img src="{% static 'images/burp_suite_icon.png' %}" alt="Burp Suite" class="w-12 h-12 object-contain transition-all group-hover:scale-110 duration-300">
+                    </div>
+                    <h4 class="font-bold text-sm">Burp Suite</h4>
+                    <p class="text-xs text-slate-500 mt-1">Web App Testing</p>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover-transform group" data-aos="zoom-in" data-aos-delay="100">
+                    <div class="aspect-square bg-slate-900/80 rounded-lg mb-3 flex items-center justify-center text-xs text-slate-600 font-bold relative overflow-hidden group-hover:bg-slate-900 transition-colors">
+                        <svg class="w-12 h-12 text-emerald-500 transition-all group-hover:text-emerald-400 group-hover:scale-110 duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 20c3 0 5.5-2.5 7.5-7.5 1.5-3.5 3-6.5 6.5-8.5-2.5 2.5-4 6-4 9.5 0 3.5 1.5 5 4 6.5H3z" fill="currentColor" fill-opacity="0.1" stroke-width="2"/>
+                            <circle cx="18" cy="18" r="1.5" fill="currentColor" />
+                            <circle cx="10" cy="12" r="1" fill="currentColor" />
+                            <path d="M10 12c2 1 5 3 8 6" stroke-dasharray="2 2" stroke-opacity="0.5" />
+                        </svg>
+                    </div>
+                    <h4 class="font-bold text-sm">Wireshark</h4>
+                    <p class="text-xs text-slate-500 mt-1">Packet Analysis</p>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover-transform group" data-aos="zoom-in" data-aos-delay="150">
+                    <div class="aspect-square bg-slate-900/80 rounded-lg mb-3 flex items-center justify-center text-xs text-slate-600 font-bold relative overflow-hidden group-hover:bg-slate-900 transition-colors">
+                        <svg class="w-12 h-12 text-emerald-500 transition-all group-hover:text-emerald-400 group-hover:scale-110 duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" stroke-opacity="0.2"/>
+                            <circle cx="12" cy="12" r="7" stroke-dasharray="3 3"/>
+                            <circle cx="12" cy="12" r="3" fill="currentColor" fill-opacity="0.2"/>
+                            <path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke-width="2"/>
+                            <path d="M8 8h3v-3M16 8h-3v-3M8 16h3v3M16 16h-3v3" stroke-opacity="0.5"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-bold text-sm">Metasploit</h4>
+                    <p class="text-xs text-slate-500 mt-1">Exploitation Framework</p>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover-transform group" data-aos="zoom-in" data-aos-delay="200">
+                    <div class="aspect-square bg-slate-900/80 rounded-lg mb-3 flex items-center justify-center text-xs text-slate-600 font-bold relative overflow-hidden group-hover:bg-slate-900 transition-colors">
+                        <svg class="w-12 h-12 text-emerald-500 transition-all group-hover:text-emerald-400 group-hover:scale-110 duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-opacity="0.4"/>
+                            <path d="M13 3L6 13h5v8l7-10h-5V3z" fill="currentColor" fill-opacity="0.15" stroke-width="1.5"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-bold text-sm">OWASP ZAP</h4>
+                    <p class="text-xs text-slate-500 mt-1">Security Scanner</p>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover-transform group" data-aos="zoom-in" data-aos-delay="250">
+                    <div class="aspect-square bg-slate-900/80 rounded-lg mb-3 flex items-center justify-center text-xs text-slate-600 font-bold relative overflow-hidden group-hover:bg-slate-900 transition-colors">
+                        <svg class="w-12 h-12 text-emerald-500 transition-all group-hover:text-emerald-400 group-hover:scale-110 duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 21v-7M12 14C9 14 6 12 6 9V5M12 14c3 0 6-2 6-9V5M12 14V8" />
+                            <circle cx="6" cy="4" r="1.5" fill="currentColor" />
+                            <circle cx="12" cy="7" r="1.5" fill="currentColor" />
+                            <circle cx="18" cy="4" r="1.5" fill="currentColor" />
+                            <path d="M3 12h2M21 12h2" stroke-dasharray="2 2"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-bold text-sm">Hydra</h4>
+                    <p class="text-xs text-slate-500 mt-1">Brute Force</p>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover-transform group" data-aos="zoom-in" data-aos-delay="300">
+                    <div class="aspect-square bg-slate-900/80 rounded-lg mb-3 flex items-center justify-center text-xs text-slate-600 font-bold relative overflow-hidden group-hover:bg-slate-900 transition-colors">
+                        <svg class="w-12 h-12 text-emerald-500 transition-all group-hover:text-emerald-400 group-hover:scale-110 duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="4" width="6" height="4" rx="1" stroke-opacity="0.4"/>
+                            <rect x="3" y="14" width="6" height="4" rx="1" stroke-opacity="0.4"/>
+                            <path d="M9 6h4v10H9" stroke-opacity="0.4" />
+                            <path d="M13 11h3" stroke-opacity="0.4" />
+                            <circle cx="16" cy="11" r="4" fill="currentColor" fill-opacity="0.1" stroke-width="2"/>
+                            <line x1="19" y1="14" x2="22" y2="17" stroke-width="2"/>
+                        </svg>
+                    </div>
+                    <h4 class="font-bold text-sm">Gobuster</h4>
+                    <p class="text-xs text-slate-500 mt-1">Enumeration</p>
+                </div>
+                <div class="glass p-4 rounded-xl text-center hover-transform group" data-aos="zoom-in" data-aos-delay="350">
+                    <div class="aspect-square bg-slate-900/80 rounded-lg mb-3 flex items-center justify-center text-xs text-slate-600 font-bold relative overflow-hidden group-hover:bg-slate-900 transition-colors">
+                        <svg class="w-12 h-12 text-emerald-500 transition-all group-hover:text-emerald-400 group-hover:scale-110 duration-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M19 3S14 8 13 14c-1-3-3-5-6-7 1 4 3 7 7 9" />
+                            <path d="M13 14c-1 3-3 5-6 6 4 0 7-3 8-7" />
+                            <path d="M13 14c1-2 2-4 1-6 2 2 3 4 2 6" />
+                            <path d="M14 8l2-2-1-1" />
+                            <circle cx="14" cy="7" r="0.75" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <h4 class="font-bold text-sm">Kali Linux</h4>
+                    <p class="text-xs text-slate-500 mt-1">Penetration OS</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="about"
+            class="max-w-7xl mx-auto px-6 py-20 bg-slate-900/30 rounded-3xl border border-slate-800/40 my-10" data-aos="fade-up">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="flex justify-center" data-aos="fade-right" data-aos-delay="100">
+                    <div class="relative">
+                        <div
+                            class="absolute inset-0 bg-emerald-500 blur-3xl opacity-20 rounded-3xl">
+                        </div>
+
+                        <img
+                            src="{% static 'images/nivin.png' %}"
+                            alt="Nivin Padaveettil"
+                            class="relative w-full max-w-md rounded-3xl border border-emerald-500/20 shadow-2xl object-cover">
+                    </div>
+                </div>
+                <div data-aos="fade-left" data-aos-delay="200">
+                    <p class="text-emerald-400 font-mono text-xs uppercase tracking-widest mb-2">// WHO AM I</p>
+                    <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-6">About Me</h2>
+                    <p class="text-slate-400 leading-relaxed mb-6">
+                        I'm a passionate cybersecurity student dedicated to ethical hacking, penetration testing, and vulnerability research. My journey focuses on continuous learning through hands-on labs, CTF challenges, and real-world security assessments. With expertise in web application security, network security, and security automation, I'm committed to securing digital infrastructures and discovering vulnerabilities before malicious actors do.
+                    </p>
+                    <div class="flex gap-4">
+                        <a href="https://github.com/NivinPadaveettil" target="_blank" rel="noopener"
+                            class="text-slate-400 hover:text-emerald-400 font-mono text-sm">→ GitHub</a>
+                        <a href="https://tryhackme.com/p/MrCrackerBoy" target="_blank" rel="noopener"
+                            class="text-slate-400 hover:text-emerald-400 font-mono text-sm">→ TryHackMe</a>
+                        <a href="https://www.linkedin.com/in/nivin-padaveettil/" target="_blank" rel="noopener"
+                            class="text-slate-400 hover:text-emerald-400 font-mono text-sm">→ LinkedIn</a>
+                    </div>
+                </div>
+                <div class="glass p-8 rounded-2xl" data-aos="fade-up" data-aos-delay="300">
+                    <h3 class="text-xl font-bold mb-6 font-mono text-emerald-400">&gt;_ CORE_COMPETENCIES</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 font-mono"><span
+                                    class="text-slate-300">Web Application Security & Testing</span><span
+                                    class="text-emerald-400">90%</span></div>
+                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full skill-progress" data-width="90%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 font-mono"><span
+                                    class="text-slate-300">Penetration Testing & Vulnerability Assessment</span><span
+                                    class="text-emerald-400">85%</span></div>
+                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full skill-progress" data-width="85%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 font-mono"><span
+                                    class="text-slate-300">Python & Bash Scripting</span><span
+                                    class="text-emerald-400">80%</span></div>
+                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full skill-progress" data-width="80%"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-sm mb-1 font-mono"><span
+                                    class="text-slate-300">Linux Administration & Networking</span><span
+                                    class="text-emerald-400">85%</span></div>
+                            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                                <div class="bg-gradient-to-r from-emerald-500 to-teal-400 h-full skill-progress" data-width="85%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="resume" class="max-w-4xl mx-auto px-6 py-20">
+            <div class="text-center mb-16" data-aos="fade-up">
+                <p class="text-emerald-400 font-mono text-xs uppercase tracking-widest mb-2">// QUALIFICATIONS</p>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">Certifications & Education</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
+                <div class="glass p-6 rounded-2xl hover-transform" data-aos="fade-right" data-aos-delay="100">
+                    <h3 class="text-xl font-bold mb-4 font-mono text-emerald-400">🎉 PURSUING</h3>
+                    <div class="space-y-3">
+                        <div class="border-l-2 border-emerald-500 pl-4">
+                            <h4 class="font-bold text-slate-200">Google Cybersecurity Certificate</h4>
+                            <p class="text-sm text-slate-400">In Progress</p>
+                        </div>
+                        <div class="border-l-2 border-emerald-500 pl-4">
+                            <h4 class="font-bold text-slate-200">CEH (Certified Ethical Hacker)</h4>
+                            <p class="text-sm text-slate-400">Planned</p>
+                        </div>
+                        <div class="border-l-2 border-emerald-500 pl-4">
+                            <h4 class="font-bold text-slate-200">Security+ Certification</h4>
+                            <p class="text-sm text-slate-400">Planned</p>
+                        </div>
+                        <div class="border-l-2 border-emerald-500 pl-4">
+                            <h4 class="font-bold text-slate-200">eJPT & PNPT Certifications</h4>
+                            <p class="text-sm text-slate-400">Planned</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="glass p-6 rounded-2xl hover-transform" data-aos="fade-left" data-aos-delay="200">
+                    <h3 class="text-xl font-bold mb-4 font-mono text-emerald-400">🌟 EDUCATION</h3>
+                    <div class="border-l-2 border-teal-500 pl-4">
+                        <h4 class="font-bold text-slate-200 text-lg">Bachelor of Engineering</h4>
+                        <p class="text-emerald-400 font-mono text-sm">Current Student</p>
+                        <p class="text-slate-400 text-sm mt-2">Jawaharlal College of Engineering and Technology</p>
+                        <p class="text-slate-500 text-xs mt-1">Kerala, India</p>
+                    </div>
+                </div>
+            </div>
+            <div class="glass p-8 rounded-2xl hover-transform" data-aos="fade-up" data-aos-delay="300">
+                <h3 class="text-xl font-bold mb-6 font-mono text-emerald-400">🐧 LEARNING JOURNEY</h3>
+                <div class="space-y-4 text-slate-400 text-sm leading-relaxed">
+                    <p>• <strong>Hands-on Cybersecurity Labs:</strong> Completed multiple practical security labs across different domains including web exploitation, network security, and cryptography.</p>
+                    <p>• <strong>TryHackMe Learning Paths:</strong> Active participant in structured learning paths covering penetration testing fundamentals, web security, and offensive security techniques.</p>
+                    <p>• <strong>CTF Participation:</strong> Actively participating in Capture The Flag competitions to enhance practical security skills and challenge-solving abilities.</p>
+                    <p>• <strong>Security Research:</strong> Conducting independent security research and vulnerability analysis projects to discover and document security issues responsibly.</p>
+                    <p>• <strong>Bug Bounty Hunting:</strong> Runner-Up in <strong>PHISHERMEN 2.0 Bug Bounty Competition</strong> — demonstrating real-world vulnerability discovery and reporting skills.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="achievements" class="max-w-7xl mx-auto px-6 py-20">
+            <div class="text-center mb-12" data-aos="fade-up">
+                <p class="text-emerald-400 font-mono text-xs uppercase tracking-widest mb-2">// ACCOMPLISHMENTS</p>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">Key Achievements</h2>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass p-6 rounded-2xl relative hover-transform" data-aos="fade-up" data-aos-delay="0">
+                    <p class="text-2xl mb-2">🎉</p>
+                    <h4 class="font-bold text-lg text-emerald-400 mb-2">Bug Bounty Runner-Up</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Runner-Up achievement in PHISHERMEN 2.0 Bug Bounty Competition, demonstrating real-world vulnerability discovery and responsible disclosure capabilities.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl relative hover-transform" data-aos="fade-up" data-aos-delay="100">
+                    <p class="text-2xl mb-2">🔬</p>
+                    <h4 class="font-bold text-lg text-emerald-400 mb-2">Active Security Researcher</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Conducting independent security research projects, analyzing vulnerabilities, and contributing to the cybersecurity community through documentation and responsible disclosure.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl relative hover-transform" data-aos="fade-up" data-aos-delay="200">
+                    <p class="text-2xl mb-2">🚩</p>
+                    <h4 class="font-bold text-lg text-emerald-400 mb-2">CTF & Lab Completion</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Completed numerous security labs, CTF challenges, and hands-on exercises demonstrating mastery in penetration testing, web security, and vulnerability assessment methodologies.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl relative hover-transform" data-aos="fade-up" data-aos-delay="0">
+                    <p class="text-2xl mb-2">📚</p>
+                    <h4 class="font-bold text-lg text-emerald-400 mb-2">Continuous Learning</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Actively pursuing industry-recognized certifications and maintaining proficiency across multiple cybersecurity domains through dedicated study and practical application.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl relative hover-transform" data-aos="fade-up" data-aos-delay="100">
+                    <p class="text-2xl mb-2">💻</p>
+                    <h4 class="font-bold text-lg text-emerald-400 mb-2">Full-Stack Security Skills</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Combining offensive security expertise with secure development practices, creating tools and frameworks that integrate security throughout the entire application lifecycle.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl relative hover-transform" data-aos="fade-up" data-aos-delay="200">
+                    <p class="text-2xl mb-2">🎯</p>
+                    <h4 class="font-bold text-lg text-emerald-400 mb-2">TryHackMe Top Performer</h4>
+                    <p class="text-slate-400 text-sm leading-relaxed">Active TryHackMe participant (MrCrackerBoy) completing security training paths, labs, and challenges demonstrating practical hands-on cybersecurity expertise.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="blog" class="max-w-7xl mx-auto px-6 py-20">
+            <div class="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-4" data-aos="fade-up">
+                <div>
+                    <p class="text-emerald-400 font-mono text-xs uppercase tracking-widest mb-2">// SECURITY RESEARCH & WRITEUPS</p>
+                    <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight">Latest Security Articles</h2>
+                </div>
+                <button
+                    class="text-xs font-mono text-slate-400 hover:text-emerald-400 transition-colors uppercase tracking-wider">View All →</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <article
+                    class="glass p-6 rounded-2xl hover:border-emerald-500/20 transition-all flex flex-col justify-between hover-transform" data-aos="fade-up" data-aos-delay="100">
+                    <div>
+                        <div class="flex gap-4 text-xs font-mono text-slate-500 mb-3"><span>MAY 2026</span><span>•</span><span class="text-emerald-400">WEB_SECURITY</span></div>
+                        <h3 class="text-xl font-bold mb-2 hover:text-emerald-400 transition-colors"><a
+                                href="#">Exploiting OWASP Top 10 Vulnerabilities: A Practical Guide to Web Application Security Testing</a></h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">A comprehensive breakdown of the most critical web application vulnerabilities, including practical exploitation techniques and defense mechanisms for securing modern web applications.</p>
+                    </div>
+                    <span class="text-xs font-mono text-emerald-500">READ_ARTICLE [8 MIN]</span>
+                </article>
+                <article
+                    class="glass p-6 rounded-2xl hover:border-emerald-500/20 transition-all flex flex-col justify-between hover-transform" data-aos="fade-up" data-aos-delay="200">
+                    <div>
+                        <div class="flex gap-4 text-xs font-mono text-slate-500 mb-3"><span>APR 2026</span><span>•</span><span class="text-emerald-400">NETWORK_SECURITY</span></div>
+                        <h3 class="text-xl font-bold mb-2 hover:text-emerald-400 transition-colors"><a
+                                href="#">Network Reconnaissance & Enumeration: Mastering Nmap, Wireshark, and Advanced Scanning Techniques</a></h3>
+                        <p class="text-slate-400 text-sm leading-relaxed mb-4">Deep dive into network discovery, port scanning, service enumeration, and traffic analysis techniques essential for successful penetration testing engagements and network security assessments.</p>
+                    </div>
+                    <span class="text-xs font-mono text-emerald-500">READ_ARTICLE [10 MIN]</span>
+                </article>
+            </div>
+        </section>
+
+        <section id="contact" class="max-w-5xl mx-auto px-6 py-20">
+            <div class="mb-16" data-aos="fade-up">
+                <p class="text-emerald-400 font-mono text-xs uppercase tracking-widest mb-2">// GET IN TOUCH</p>
+                <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">Let's Connect</h2>
+                <p class="text-slate-400 text-lg leading-relaxed max-w-2xl">Interested in discussing cybersecurity projects, collaboration opportunities, security research, or bug bounty initiatives? I'd love to hear from you.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Direct Contact Methods -->
+                <div class="space-y-4" data-aos="fade-right" data-aos-delay="100">
+                    <h3 class="text-lg font-bold text-emerald-400 font-mono mb-6">DIRECT CHANNELS</h3>
+                    
+                    <a href="https://www.linkedin.com/in/nivin-padaveettil/" target="_blank" rel="noopener"
+                        class="block glass p-6 rounded-xl hover:border-emerald-500/50 transition-all group hover-transform">
+                        <div class="flex items-center gap-4">
+                            <div class="text-3xl">💼</div>
+                            <div>
+                                <h4 class="font-bold text-slate-200 group-hover:text-emerald-400 transition-colors">LinkedIn</h4>
+                                <p class="text-xs text-slate-500 font-mono">Professional Profile</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="https://github.com/NivinPadaveettil" target="_blank" rel="noopener"
+                        class="block glass p-6 rounded-xl hover:border-emerald-500/50 transition-all group hover-transform">
+                        <div class="flex items-center gap-4">
+                            <div class="text-3xl">💻</div>
+                            <div>
+                                <h4 class="font-bold text-slate-200 group-hover:text-emerald-400 transition-colors">GitHub</h4>
+                                <p class="text-xs text-slate-500 font-mono">Code Repository</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="https://tryhackme.com/p/MrCrackerBoy" target="_blank" rel="noopener"
+                        class="block glass p-6 rounded-xl hover:border-emerald-500/50 transition-all group hover-transform">
+                        <div class="flex items-center gap-4">
+                            <div class="text-3xl">🎯</div>
+                            <div>
+                                <h4 class="font-bold text-slate-200 group-hover:text-emerald-400 transition-colors">TryHackMe</h4>
+                                <p class="text-xs text-slate-500 font-mono">MrCrackerBoy</p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <div class="glass p-6 rounded-xl hover-transform">
+                        <div class="flex items-start gap-4">
+                            <div class="text-3xl">📍</div>
+                            <div>
+                                <h4 class="font-bold text-slate-200">Location</h4>
+                                <p class="text-sm text-slate-400 mt-1">Kerala, India</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact Form -->
+                <div class="lg:col-span-2" data-aos="fade-left" data-aos-delay="200">
+                    <h3 class="text-lg font-bold text-emerald-400 font-mono mb-6">SEND MESSAGE</h3>
+                    
+                    {% if success %}
+                    <div class="glass p-6 rounded-xl bg-emerald-500/10 border-emerald-500/30 mb-6">
+                        <p class="text-emerald-400 font-bold text-sm">✓ Message received successfully!</p>
+                        <p class="text-slate-400 text-xs mt-2">Thank you for reaching out. I'll get back to you within 24-48 hours.</p>
+                    </div>
+                    {% endif %}
+
+                    <form action="{% url 'index' %}" method="POST" class="space-y-4 glass p-8 rounded-xl">
+                        {% csrf_token %}
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-slate-300 text-sm font-mono mb-2">NAME</label>
+                                <input type="text" name="name"
+                                    class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                                    placeholder="Your name" required>
+                            </div>
+
+                            <div>
+                                <label class="block text-slate-300 text-sm font-mono mb-2">EMAIL</label>
+                                <input type="email" name="email"
+                                    class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                                    placeholder="your@email.com" required>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-300 text-sm font-mono mb-2">SUBJECT</label>
+                            <input type="text" name="subject"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                                placeholder="Project inquiry" required>
+                        </div>
+
+                        <div>
+                            <label class="block text-slate-300 text-sm font-mono mb-2">MESSAGE</label>
+                            <textarea rows="6" name="message"
+                                class="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-slate-100 focus:outline-none focus:border-emerald-500 transition-colors"
+                                placeholder="Tell me about your project..." required></textarea>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full py-3 bg-emerald-500 text-slate-950 font-bold rounded-lg hover:bg-emerald-400 transition-colors text-sm uppercase tracking-wider">
+                            Send Message
+                        </button>
+                    </form>
+
+                    <!-- Quick Stats -->
+                    <div class="mt-8 grid grid-cols-2 gap-4" data-aos="fade-up" data-aos-delay="300">
+                        <div class="glass p-4 rounded-lg text-center hover-transform">
+                            <p class="text-xl font-bold text-emerald-400">24-48h</p>
+                            <p class="text-xs text-slate-400 font-mono mt-1">Response Time</p>
+                        </div>
+                        <div class="glass p-4 rounded-lg text-center hover-transform">
+                            <p class="text-xl font-bold text-emerald-400">24/7</p>
+                            <p class="text-xs text-slate-400 font-mono mt-1">Available Online</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer
+            class="w-full border-t border-slate-900 bg-slate-950/60 py-8 text-center text-xs font-mono text-slate-600">
+            © 2026 NIVIN PADAVEETTIL • CYBERSECURITY PORTFOLIO • ETHICAL HACKER | PENETRATION TESTER
+        </footer>
+
+    </div>
+
+    <!-- AOS and custom interactivity scripts -->
+    <script src="https://unpkg.com/aos@next/dist/aos.js"></script>
+    <script>
+        // Initialize AOS
+        document.addEventListener('DOMContentLoaded', () => {
+            AOS.init({
+                duration: 800,
+                easing: 'ease-out-cubic',
+                once: true,
+                offset: 50
+            });
+        });
+
+        // Preloader Logic
+        const preloaderText = document.getElementById('preloader-text');
+        const preloaderBar = document.getElementById('preloader-bar');
+        const loadingSteps = [
+            { text: "DECRYPTING SECURE SHELL...", pct: 20 },
+            { text: "ESTABLISHING SECURE HANDSHAKE...", pct: 50 },
+            { text: "LOADING VULNERABILITY DATABASE...", pct: 75 },
+            { text: "BYPASSING FIREWALLS...", pct: 90 },
+            { text: "ACCESS GRANTED. WELCOME.", pct: 100 }
+        ];
+
+        let currentStep = 0;
+        function runPreloader() {
+            if (currentStep < loadingSteps.length) {
+                preloaderText.textContent = loadingSteps[currentStep].text;
+                preloaderBar.style.width = loadingSteps[currentStep].pct + '%';
+                
+                let delay = 300 + Math.random() * 400; // random speed
+                if (currentStep === loadingSteps.length - 1) delay = 200; // quick finish
+                
+                currentStep++;
+                setTimeout(runPreloader, delay);
+            } else {
+                const preloader = document.getElementById('preloader');
+                preloader.style.transition = 'opacity 0.5s ease';
+                preloader.style.opacity = '0';
+                setTimeout(() => {
+                    preloader.style.display = 'none';
+                    // Re-calculate AOS offsets once preloader is gone
+                    AOS.refresh();
+                }, 500);
+            }
+        }
+        runPreloader();
+
+        // Scroll Progress Indicator
+        window.addEventListener('scroll', () => {
+            const scrollProgress = document.getElementById('scroll-progress');
+            const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const progress = (window.scrollY / totalHeight) * 100;
+            scrollProgress.style.width = progress + '%';
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileMenuLinks = document.querySelectorAll('.mobile-nav-link');
+
+        if (mobileMenuBtn && mobileMenu) {
+            mobileMenuBtn.addEventListener('click', () => {
+                const isOpen = mobileMenuBtn.classList.toggle('open');
+                if (isOpen) {
+                    mobileMenu.classList.remove('translate-x-full');
+                } else {
+                    mobileMenu.classList.add('translate-x-full');
+                }
+            });
+
+            // Close mobile menu on clicking any link
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenuBtn.classList.remove('open');
+                    mobileMenu.classList.add('translate-x-full');
+                });
+            });
+        }
+
+        // Animate Core Competencies Progress Bars on Scroll
+        const skillBars = document.querySelectorAll('.skill-progress');
+        const skillObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const bar = entry.target;
+                    const targetWidth = bar.getAttribute('data-width');
+                    bar.style.width = targetWidth;
+                    skillObserver.unobserve(bar);
+                }
+            });
+        }, { threshold: 0.1 });
+
+        skillBars.forEach(bar => skillObserver.observe(bar));
+
+        // Animated Counters for Stats Row
+        const counters = document.querySelectorAll('.counter');
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const counter = entry.target;
+                    const target = parseInt(counter.getAttribute('data-target'));
+                    const duration = 1500; // 1.5s
+                    const startTime = performance.now();
+
+                    const updateCounter = (currentTime) => {
+                        const elapsed = currentTime - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        const easeProgress = progress * (2 - progress); // Ease out quad
+                        const currentValue = Math.floor(easeProgress * target);
+                        
+                        counter.textContent = currentValue;
+
+                        if (progress < 1) {
+                            requestAnimationFrame(updateCounter);
+                        } else {
+                            counter.textContent = target;
+                        }
+                    };
+
+                    requestAnimationFrame(updateCounter);
+                    counterObserver.unobserve(counter);
+                }
+            });
+        }, { threshold: 0.5 });
+
+        counters.forEach(counter => counterObserver.observe(counter));
+
+        // Active Navbar Link Highlighting on Scroll
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link, .mobile-nav-link');
+        const homeHeader = document.querySelector('header');
+
+        const activeObserverOptions = {
+            root: null,
+            rootMargin: '-20% 0px -60% 0px',
+            threshold: 0
+        };
+
+        const activeObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.getAttribute('id') || '';
+                    navLinks.forEach(link => {
+                        if (link.getAttribute('href') === `#${id}`) {
+                            link.classList.add('active');
+                        } else {
+                            link.classList.remove('active');
+                        }
+                    });
+                }
+            });
+        }, activeObserverOptions);
+
+        sections.forEach(section => activeObserver.observe(section));
+        if (homeHeader) {
+            homeHeader.setAttribute('id', 'home');
+            activeObserver.observe(homeHeader);
+        }
+    </script>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+
+        // Initialize Scene Elements
+        const container = document.querySelector('#canvas-bg');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Optimized pixel ratio (caps at 1.5)
+        container.appendChild(renderer.domElement);
+
+        // Populate Starfield Particles
+        const particlesGeom = new THREE.BufferGeometry();
+        const count = 1200; // Optimized particle count
+        const positions = new Float32Array(count * 3);
+
+        for (let i = 0; i < count * 3; i += 3) {
+            positions[i] = (Math.random() - 0.5) * 40;     // X axis
+            positions[i + 1] = (Math.random() - 0.5) * 40;   // Y axis
+            positions[i + 2] = (Math.random() - 0.5) * 40;   // Z axis
+        }
+
+        particlesGeom.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        const particlesMat = new THREE.PointsMaterial({
+            size: 0.04,
+            color: 0x10b981,
+            transparent: true,
+            opacity: 0.3,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particleField = new THREE.Points(particlesGeom, particlesMat);
+        scene.add(particleField);
+
+        // Global position offsets
+        camera.position.z = 15;
+
+        // Trace Mouse Interaction Metrics
+        let targetX = 0;
+        let targetY = 0;
+
+        window.addEventListener('mousemove', (event) => {
+            targetX = (event.clientX / window.innerWidth) - 0.5;
+            targetY = (event.clientY / window.innerHeight) - 0.5;
+        });
+
+        // Touch support for mobile viewports
+        window.addEventListener('touchmove', (event) => {
+            if (event.touches.length > 0) {
+                targetX = (event.touches[0].clientX / window.innerWidth) - 0.5;
+                targetY = (event.touches[0].clientY / window.innerHeight) - 0.5;
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+        });
+
+        // Page Visibility check to stop renderer when backgrounded
+        let isPageVisible = true;
+        document.addEventListener('visibilitychange', () => {
+            isPageVisible = (document.visibilityState === 'visible');
+        });
+
+        // Frame Computation Loop
+        let clock = new THREE.Clock();
+
+        const tick = () => {
+            requestAnimationFrame(tick);
+
+            if (!isPageVisible) return;
+
+            const elapsedTime = clock.getElapsedTime();
+
+            // Smoothly ease particle field rotation tracking the mouse vectors
+            particleField.rotation.y += (targetX * 0.3 - particleField.rotation.y) * 0.05;
+            particleField.rotation.x += (-targetY * 0.3 - particleField.rotation.x) * 0.05;
+            particleField.rotation.z += 0.0006;
+
+            // Scroll Parallax camera drift
+            const targetCamY = -window.scrollY * 0.003;
+            camera.position.y += (targetCamY - camera.position.y) * 0.05;
+
+            renderer.render(scene, camera);
+        };
+
+        tick();
+    </script>
+</body>
+
+</html>
