@@ -1,4 +1,4 @@
-{% load static %}
+﻿{% load static %}
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
 
@@ -90,6 +90,39 @@
             transform: translateY(-8px);
             border-color: rgba(16, 185, 129, 0.3);
             box-shadow: 0 12px 30px -10px rgba(16, 185, 129, 0.15);
+        }
+
+        /* Ensure Three.js canvas and images don't cause overflow on small screens */
+        #canvas-bg canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100% !important;
+            height: 100% !important;
+            display: block;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        /* Make images scale down on small viewports */
+        .ui-layer img, img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* Tweak layout spacing for small screens */
+        @media (max-width: 640px) {
+            header {
+                padding-top: 3.5rem;
+                padding-bottom: 3rem;
+                min-height: 65vh;
+            }
+
+            .glass {
+                padding: 0.75rem;
+                border-radius: 1rem;
+            }
         }
 
         /* Active Navbar Links */
@@ -275,7 +308,7 @@
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="glass rounded-2xl overflow-hidden group hover-transform" data-aos="fade-up" data-aos-delay="100">
-                    <div class="h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
+                    <div class="h-48 md:h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
                         <img src="{% static 'images/ai_malware.png' %}" alt="AI Malware Detection & Chatbot" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
                     </div>
@@ -287,7 +320,7 @@
                     </div>
                 </div>
                 <div class="glass rounded-2xl overflow-hidden group hover-transform" data-aos="fade-up" data-aos-delay="200">
-                    <div class="h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
+                    <div class="h-48 md:h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
                         <img src="{% static 'images/packet_analyzer.png' %}" alt="Advanced Packet Analyzer" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
                     </div>
@@ -301,7 +334,7 @@
             </div>
             <div class="mt-8">
                 <div class="glass rounded-2xl overflow-hidden group hover-transform" data-aos="fade-up" data-aos-delay="300">
-                    <div class="h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
+                    <div class="h-48 md:h-64 bg-slate-900 flex items-center justify-center border-b border-slate-800 relative">
                         <img src="{% static 'images/chat_platform.png' %}" alt="Inderbara Chat Platform" class="w-full h-full object-cover">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-60"></div>
                     </div>
